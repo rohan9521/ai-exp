@@ -1,6 +1,7 @@
 import fs from "fs-extra";
 import path from "path";
 import { getWorkspace } from "../utils/workspace.js";
+import { AppError } from "../utils/AppError.js";
 
 export async function createProjectStructure(
   projectId: string,
@@ -24,4 +25,15 @@ export async function writeFiles(
   for (const file of files) {
     await fs.outputFile(path.join(base, file.path), file.content);
   }
+}
+
+export async function ensureWorkspaceExists(projectId: string) {
+  const base = getWorkspace(projectId);
+  const exists = await fs.pathExists(base);
+
+  if (!exists) {
+    throw new AppError("Project workspace does not exist", 404);
+  }
+
+  return base;
 }
